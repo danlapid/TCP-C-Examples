@@ -10,6 +10,21 @@ int create_server(const char* host, unsigned short port) {
     return -1;
   }
   printf("Socket successfully created..\n");
+  int reuse = 1;
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse,
+                 sizeof(reuse)) < 0) {
+    printf("setsockopt(SO_REUSEADDR) failed");
+    return -1;
+  }
+
+#ifdef SO_REUSEPORT
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse,
+                 sizeof(reuse)) < 0) {
+    printf("setsockopt(SO_REUSEPORT) failed");
+    return -1;
+  }
+#endif
+
   struct sockaddr_in servaddr = {.sin_family = AF_INET,
                                  .sin_addr.s_addr = inet_addr(host),
                                  .sin_port = htons(port)};
@@ -65,4 +80,28 @@ int create_client(const char* host, unsigned short port) {
   return sockfd;
 }
 
+// Sends a message to the socket with message size prefix
+ssize_t send_message(int sockfd, char* msg, unsigned short msgsize) {
+  unsigned short nmsgsize = htons(msgsize);
+  ssize_t nwrote =
+      send(sockfd, &nmsgsize, sizeof(nmsgsize), MSG_NOSIGNAL | MSG_MORE);
+  if (nwrote == -1) {
+    return -1;
+  }
+
+  return send(sockfd, msg, msgsize, MSG_NOSIGNAL);
+}
+
+// Receives a message to the socket with message size prefix
+ssize_t receive_message(int sockfd, char msg[65536], unsigned short* msgsize) {
+  unsigned short nmsgsize = 0;
+  ssize_t nread = recv(sockfd, &nmsgsize, sizeof(nmsgsize), MSG_WAITALL);
+  if (nread <= 0) {
+    return nread;
+  }
+  *msgsize = ntohs(nmsgsize);
+
+  memset(msg, 0, *msgsize + 1);
+  return recv(sockfd, msg, *msgsize, MSG_WAITALL);
+}
 #endif
