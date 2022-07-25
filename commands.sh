@@ -1,4 +1,10 @@
-# Wireshark:
+# Local Wireshark:
+wireshark -f "host 212.183.159.230" -i en0 -k
+# Download file:
+curl -o 5MB.bin http://212.183.159.230/5MB.zip
+# Statistics -> TCP Stream Graphs -> Window Scaling
+
+# SSH Wireshark:
 ssh kali "tcpdump -i lo -s0 -U -w - 'port 8000'" | wireshark -k -i -
 
 # Slow server:
