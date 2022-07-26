@@ -16,5 +16,5 @@ ssh kali "tcpdump -i lo -s0 -U -w - 'port 8000'" | wireshark -k -i -
 ./build/echo_client 127.0.0.1 8000
 
 # Const size Echo server:
-./build/echo_server 127.0.0.1 8000
-./build/echo_client 127.0.0.1 8000
+./build/char_server 127.0.0.1 8000
+./build/char_client 127.0.0.1 8000

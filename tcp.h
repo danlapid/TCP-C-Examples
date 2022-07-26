@@ -2,7 +2,6 @@
 #define TCP_H
 #include "common.h"
 int create_server(const char* host, unsigned short port) {
-  // assign IP, PORT
   // socket create and verification
   AUTO_CLOSE int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd == -1) {
